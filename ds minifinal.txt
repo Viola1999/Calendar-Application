@@ -1,0 +1,248 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define SIZE 20
+
+typedef struct event
+{
+  int dd, mm, priority;
+  char name[20];
+  struct event *next, *prev;
+} node;
+
+typedef struct
+{
+  node *start;
+} E;
+
+int month(int c, int d) //for calendar
+{
+  int i, j, k;
+  printf("   Sun   Mon   Tue   Wed   Thu   Fri   Sat\n\n");
+  for (i = 0; i <= d; i++)
+    if (i >= d)
+    {
+      for (j = 1; j <= c; j++)
+      {
+        if (i % 7 == 0)
+          printf("\n");
+        printf("%6d", j);
+        i++;
+      }
+    }
+    else
+      printf("      ");
+  k = (c + d) % 7;
+  return (k);
+}
+
+int getPriority(int newn, int next)
+{
+  if (newn < next)
+    return 1;
+  else
+    return 0;
+}
+
+int validateDate(int d, int m)
+{
+  if ((m == 2) && (d > 0 && d <= 28))
+  {
+    return 0;
+  }
+  else if ((m == 1 || m == 3 || m == 5 || m == 7 || m == 8 || m == 10 || m == 12) && (d > 0 && d <= 31))
+  {
+    return 0;
+  }
+  else if ((m == 2 || m == 4 || m == 6 || m == 9 || m == 11) && (d > 0 && d <= 30))
+  {
+    return 0;
+  }
+  else
+  {
+    printf("INvaid\n");
+    return 1;
+  }
+}
+
+int insertEvent(E *e, int d, int m, char nam[20])
+{
+  int count;
+  node *newN = (node *)malloc(sizeof(node));
+  newN->dd = d;
+  newN->mm = m;
+  newN->priority = newN->mm * 100 + newN->dd;
+  strcpy(newN->name, nam);
+  newN->next = NULL;
+  newN->prev = NULL;
+  node *pRev = NULL;
+  if (e->start == NULL)
+  {
+    e->start = newN;
+  }
+  else
+  {
+    node *temp = e->start;
+    while (temp != NULL)
+    {
+      if (newN->priority < temp->priority)
+        break;
+      else
+      {
+        pRev = temp;
+        temp = temp->next;
+      }
+    }
+    if (temp == e->start)
+    {
+      e->start = newN;
+      newN->next = temp;
+      temp->prev = newN;
+    }
+    else if (pRev->next == NULL)
+    {
+      pRev->next = newN;
+      newN->prev = pRev;
+    }
+    else
+    {
+      newN->next = temp;
+      newN->prev = temp->prev;
+      temp->prev = newN;
+      temp->prev->next = newN;
+    }
+  }
+}
+
+int delete (E *e, int d, int m)
+{
+  node *temp = e->start;
+  while (temp != NULL)
+  {
+    if ((temp->mm == m) && (temp->dd == d))
+    {
+      if ((temp->prev == NULL) && (temp->next == NULL))
+        e->start = NULL;
+      else
+      {
+        if (temp->prev == NULL)
+        {
+          e->start = temp->next;
+          e->start->prev = NULL;
+        }
+        else if (temp->next == NULL)
+          temp->prev->next = NULL;
+        else
+        {
+          temp->prev->next = temp->next;
+          temp->next->prev = temp->prev;
+        }
+      }
+      free(temp);
+      return 1;
+    }
+    else
+      temp = temp->next;
+  }
+  return 0;
+}
+
+void display(E *e)
+{
+  node *temp = e->start;
+  printf("Name      \tDate \tMonth \t\n");
+  while (temp != NULL)
+  {
+    printf("%s\t%d\t  %d\t\n", temp->name, temp->dd, temp->mm);
+    temp = temp->next;
+  }
+}
+
+int main()
+{
+  E ev;
+  ev.start = NULL;
+  int dd, mm;
+  char name[SIZE];
+
+  int yy, a, a1, a2, b, b1, b2, i, sm = 0, c, d, e;
+  printf("Enter  which year you want show the calender-");
+  scanf("%d", &yy);
+  yy = yy - 1;
+  a = yy % 400;
+  b = yy / 400;
+  a1 = a % 100;
+  b1 = a / 100;
+  a2 = a1 / 4;
+  b2 = a1 - a2;
+  sm = b * 0 + b1 * 5 + a2 * 2 + b2 * 1 + 1;
+  sm = sm % 7;
+  printf("\n\n\n\nJanuary\n\n");
+  sm = month(31, sm);
+  printf("\n\n\n\nFebruary\n\n");
+  if ((yy + 1) % 4 == 0)
+    sm = month(29, sm);
+  else
+    sm = month(28, sm);
+  printf("\n\n\n\nMarch\n\n");
+  sm = month(31, sm);
+  printf("\n\n\n\nApril\n\n");
+  sm = month(30, sm);
+  printf("\n\n\n\nMay\n\n");
+  sm = month(31, sm);
+  printf("\n\n\n\nJune\n\n");
+  sm = month(30, sm);
+  printf("\n\n\n\nJuly\n\n");
+  sm = month(31, sm);
+  printf("\n\n\n\nAugust\n\n");
+  sm = month(31, sm);
+  printf("\n\n\n\nSeptember\n\n");
+  sm = month(30, sm);
+  printf("\n\n\n\nOctober\n\n");
+  sm = month(31, sm);
+  printf("\n\n\n\nNovember\n\n");
+  sm = month(30, sm);
+  printf("\n\n\n\nDecember\n\n");
+  sm = month(31, sm);
+
+  do
+  {
+    printf("Enter choice\n1. Enter event\n2. Display event\n3. Delete event\n4. Exit\n");
+    scanf("%d", &i);
+    switch (i)
+    {
+    case 1:
+      do
+      {
+        printf("Enter date: ");
+        scanf("%d", &dd);
+        printf("\nEnter month: ");
+        scanf("%d", &mm);
+      } while (validateDate(dd, mm));
+      printf("Enter the event\n");
+      scanf("%s", name);
+      insertEvent(&ev, dd, mm, name);
+      printf("Event inserted successfully :-)\n");
+      break;
+    case 2:
+      if (ev.start != NULL)
+        display(&ev);
+      else
+        printf("No event there :|\n");
+      break;
+    case 3:
+      printf("Enter the date and month you want to delete\n");
+      scanf("%d%d", &dd, &mm);
+      if (delete (&ev, dd, mm))
+        printf("Event deleted \n");
+      else
+        printf("Event not found\n");
+      break;
+    case 4:
+      exit(0);
+    default:
+      printf("Wrong Choice Entered ! -_- Please Enter Correct Option\n");
+      break;
+    }
+  } while (1);
+}
